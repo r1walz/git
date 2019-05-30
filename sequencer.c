@@ -2784,6 +2784,29 @@ fail:
 	return -1;
 }
 
+int sequencer_skip(struct repository *r, struct replay_opts *opts)
+{
+	switch (opts->action) {
+	case REPLAY_REVERT:
+		if (!file_exists(git_path_revert_head(r)))
+			return error(_("no revert in progress"));
+		break;
+	case REPLAY_PICK:
+		if (!file_exists(git_path_cherry_pick_head(r)))
+			return error(_("no cherry-pick in progress"));
+		break;
+	default:
+		BUG("the control must not reach here.");
+	}
+
+	if (rollback_single_pick(r))
+		return error(_("failed to skip the commit"));
+	if (!is_directory(git_path_seq_dir()))
+		return 0;
+
+	return sequencer_continue(r, opts);
+}
+
 static int save_todo(struct todo_list *todo_list, struct replay_opts *opts)
 {
 	struct lock_file todo_lock = LOCK_INIT;
