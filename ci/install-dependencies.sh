@@ -43,6 +43,7 @@ osx-clang|osx-gcc)
 	brew install caskroom/cask/perforce
 	case "$jobname" in
 	osx-gcc)
+		brew install gcc@8
 		brew link gcc@8
 		;;
 	esac
